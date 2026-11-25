@@ -10,31 +10,44 @@
 </head>
 <body>
 
-  <h1>Dad's Sudoku</h1>
-
-  <div class="controls">
-    <button onclick="startNewGame('easy')" id="btn-easy" class="active">Easy</button>
-    <button onclick="startNewGame('medium')" id="btn-medium">Medium</button>
-    <button onclick="startNewGame('hard')" id="btn-hard">Hard</button>
-    <button onclick="toggleNotes()" id="btn-notes">Notes: OFF</button>
+  <!-- Difficulty Selection Screen -->
+  <div id="start-screen">
+    <h1>Dad's Sudoku</h1>
+    <p>Choose your difficulty to begin:</p>
+    <div class="difficulty-menu">
+      <button onclick="startNewGame('easy')">Easy</button>
+      <button onclick="startNewGame('medium')">Medium</button>
+      <button onclick="startNewGame('hard')">Hard</button>
+    </div>
   </div>
 
-  <div id="board"></div>
+  <!-- Main Game Screen -->
+  <div id="game-screen" class="hidden">
+    <h1 id="game-title">Dad's Sudoku</h1>
 
-  <div class="numpad">
-    <button onclick="inputNumber(1)">1</button>
-    <button onclick="inputNumber(2)">2</button>
-    <button onclick="inputNumber(3)">3</button>
-    <button onclick="inputNumber(4)">4</button>
-    <button onclick="inputNumber(5)">5</button>
-    <button onclick="inputNumber(6)">6</button>
-    <button onclick="inputNumber(7)">7</button>
-    <button onclick="inputNumber(8)">8</button>
-    <button onclick="inputNumber(9)">9</button>
-    <button onclick="inputNumber(0)">Clear</button>
+    <div class="controls">
+      <button onclick="showStartScreen()">Change Difficulty</button>
+      <button onclick="restartCurrentDifficulty()">New Board</button>
+      <button onclick="toggleNotes()" id="btn-notes">Notes: OFF</button>
+    </div>
+
+    <div id="board"></div>
+
+    <div class="numpad">
+      <button onclick="inputNumber(1)">1</button>
+      <button onclick="inputNumber(2)">2</button>
+      <button onclick="inputNumber(3)">3</button>
+      <button onclick="inputNumber(4)">4</button>
+      <button onclick="inputNumber(5)">5</button>
+      <button onclick="inputNumber(6)">6</button>
+      <button onclick="inputNumber(7)">7</button>
+      <button onclick="inputNumber(8)">8</button>
+      <button onclick="inputNumber(9)">9</button>
+      <button onclick="inputNumber(0)">Clear</button>
+    </div>
+
+    <div id="status"></div>
   </div>
-
-  <div id="status"></div>
 
   <script src="script.js"></script>
 </body>
