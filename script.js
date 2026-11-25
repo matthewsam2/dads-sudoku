@@ -1,15 +1,3 @@
-const baseRows = [
-  "534678912",
-  "672195348",
-  "198342567",
-  "859761423",
-  "426853791",
-  "713924856",
-  "961537284",
-  "287419635",
-  "345286179"
-];
-
 let solution = [];
 let puzzle = [];
 let notes = [];
@@ -41,33 +29,89 @@ function shuffleArray(arr) {
   return arr;
 }
 
-function generateBoard(difficulty) {
-  // 1. Shuffle digits 1-9
-  const nums = shuffleArray([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-  solution = baseRows.map(rowStr =>
-    rowStr.split('').map(ch => nums[parseInt(ch, 10) - 1])
-  );
-
-  // 2. Shuffle rows within their 3-row bands
-  for (let band = 0; band < 3; band++) {
-    const order = shuffleArray([0, 1, 2]);
-    const copy = solution.slice(band * 3, band * 3 + 3);
-    order.forEach((r, idx) => {
-      solution[band * 3 + idx] = copy[r];
-    });
+// Checks if placing `num` at (row, col) follows Sudoku rules
+function isValid(grid, row, col, num) {
+  for (let i = 0; i < 9; i++) {
+    if (grid[row][i] === num) return false;
+    if (grid[i][col] === num) return false;
   }
+  const boxRow = Math.floor(row / 3) * 3;
+  const boxCol = Math.floor(col / 3) * 3;
+  for (let r = boxRow; r < boxRow + 3; r++) {
+    for (let c = boxCol; c < boxCol + 3; c++) {
+      if (grid[r][c] === num) return false;
+    }
+  }
+  return true;
+}
 
-  // 3. Poke holes based on difficulty and reset notes
+// Recursively fills an empty 9x9 grid with a valid, random Sudoku solution
+function fillGrid(grid) {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (grid[r][c] === 0) {
+        const candidates = shuffleArray("123456789".split('').map(Number));
+        for (let num of candidates) {
+          if (isValid(grid, r, c, num)) {
+            grid[r][c] = num;
+            if (fillGrid(grid)) return true;
+            grid[r][c] = 0;
+          }
+        }
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+// Counts solutions (stops early at 2) to guarantee a single unique solution
+function countSolutions(grid, limit = 2) {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (grid[r][c] === 0) {
+        let count = 0;
+        for (let num = 1; num <= 9; num++) {
+          if (isValid(grid, r, c, num)) {
+            grid[r][c] = num;
+            count += countSolutions(grid, limit);
+            grid[r][c] = 0;
+            if (count >= limit) return count;
+          }
+        }
+        return count;
+      }
+    }
+  }
+  return 1;
+}
+
+function generateBoard(difficulty) {
+  // 1. Start with a completely blank 9x9 board and generate a fresh solution
+  solution = Array.from({ length: 9 }, () => Array(9).fill(0));
+  fillGrid(solution);
+
+  // 2. Copy solution and remove numbers one by one while keeping a unique solution
   puzzle = solution.map(row => [...row]);
   notes = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
 
-  let holes = difficulty === 'easy' ? 32 : difficulty === 'medium' ? 44 : 54;
-  while (holes > 0) {
-    const r = Math.floor(Math.random() * 9);
-    const c = Math.floor(Math.random() * 9);
-    if (puzzle[r][c] !== 0) {
-      puzzle[r][c] = 0;
-      holes--;
+  const targetHoles = difficulty === 'easy' ? 34 : difficulty === 'medium' ? 45 : 53;
+  const positions = shuffleArray(Array.from({ length: 81 }, (_, i) => i));
+
+  let holes = 0;
+  for (let pos of positions) {
+    if (holes >= targetHoles) break;
+    const r = Math.floor(pos / 9);
+    const c = pos % 9;
+    const backup = puzzle[r][c];
+    puzzle[r][c] = 0;
+
+    // Verify the puzzle still has strictly 1 solution
+    const testGrid = puzzle.map(row => [...row]);
+    if (countSolutions(testGrid, 2) !== 1) {
+      puzzle[r][c] = backup; // Put it back if removing it creates ambiguity
+    } else {
+      holes++;
     }
   }
 }
