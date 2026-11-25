@@ -237,7 +237,19 @@ function checkWin() {
     const c = cell.dataset.c;
     if (parseInt(cell.textContent, 10) !== solution[r][c]) return;
   }
-  document.getElementById('status').textContent = "Merry Christmas, Dad! You solved it!";
+
+  const today = new Date();
+  const month = today.getMonth(); // Jan = 0, Feb = 1, ... , Sep = 8, ... Dec = 11
+  const day = today.getDate
+
+  let message = "Great job, Dad! You solved it!";
+  if (month === 11 && day === 25) { // Christmas check
+    message = "Merry Christmas, Dad! You solved it!";
+  } else if (month === 8 && day === 11) { // Birthday check
+    message = "Happy birthday, Dad! You solved it!";
+  }
+  
+  document.getElementById('status').textContent = message;
 }
 
 function startNewGame(difficulty) {
